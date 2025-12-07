@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem POS dan Sales Testing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .navigation {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .nav-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .nav-btn:hover {
+            background-color: #2980b9;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .feature {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #fff;
+            border-left: 4px solid #3498db;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .active {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        .functionality {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+        .functionality h4 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sistem POS dan Sales - Dokumentasi dan Pengujian</h1>
+        
+        <div class="navigation">
+            <a href="pos_system.html" class="nav-btn">POS System</a>
+            <a href="index.php" class="nav-btn">Dashboard (Sales)</a>
+            <a href="product_management.html" class="nav-btn">Product Management</a>
+        </div>
+
+        <div class="section">
+            <h2>Deskripsi Sistem</h2>
+            <p>Sistem kasir ini terdiri dari dua bagian utama yang dapat digunakan untuk transaksi penjualan:</p>
+            
+            <div class="feature">
+                <strong>POS System (<a href="pos_system.html">pos_system.html</a>)</strong>
+                <div class="status active">Sudah Diuji</div>
+                <p>Antarmuka POS lengkap untuk melakukan transaksi penjualan secara mandiri</p>
+            </div>
+            
+            <div class="feature">
+                <strong>Sales di Dashboard (<a href="index.php">index.php</a> - Bagian Sales)</strong>
+                <div class="status active">Sudah Diuji</div>
+                <p>Bagian penjualan yang terintegrasi dalam dashboard utama sistem</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Fungsi yang Tersedia</h2>
+            
+            <div class="functionality">
+                <h4>1. Manajemen Produk</h4>
+                <ul>
+                    <li>Menambah produk baru</li>
+                    <li>Menampilkan daftar produk</li>
+                    <li>Menampilkan stok produk</li>
+                </ul>
+            </div>
+            
+            <div class="functionality">
+                <h4>2. Proses Penjualan</h4>
+                <ul>
+                    <li>Menambahkan produk ke keranjang</li>
+                    <li>Mengelola jumlah produk di keranjang</li>
+                    <li>Proses pembayaran</li>
+                    <li>Update otomatis stok produk setelah pembayaran</li>
+                </ul>
+            </div>
+            
+            <div class="functionality">
+                <h4>3. Generate Struk</h4>
+                <ul>
+                    <li>Struk otomatis muncul setelah pembayaran berhasil</li>
+                    <li>Struk berisi ID transaksi, tanggal, detail produk, total, pembayaran, dan kembalian</li>
+                    <li>Halaman struk siap cetak</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Cara Penggunaan</h2>
+            
+            <h3>POS System (pos_system.html)</h3>
+            <ol>
+                <li>Pilih produk dari daftar dan klik "Add to Cart"</li>
+                <li>Atur jumlah produk di keranjang jika perlu</li>
+                <li>Masukkan jumlah pembayaran</li>
+                <li>Klik "Process Sale" untuk menyelesaikan transaksi</li>
+                <li>Struk akan otomatis terbuka setelah pembayaran berhasil</li>
+            </ol>
+            
+            <h3>Sales di Dashboard</h3>
+            <ol>
+                <li>Buka dashboard dan pilih menu "Sales"</li>
+                <li>Pilih produk dari daftar kiri dan klik untuk menambah ke keranjang</li>
+                <li>Masukkan jumlah pembayaran</li>
+                <li>Klik "Process Payment" untuk menyelesaikan transaksi</li>
+                <li>Struk akan otomatis terbuka setelah pembayaran berhasil</li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h2>Proses Pembayaran yang Sudah Diperbaiki</h2>
+            
+            <div class="functionality">
+                <h4>Format Data yang Konsisten</h4>
+                <p>Sistem sekarang bisa menangani format data dari kedua halaman:</p>
+                <ul>
+                    <li>POS System: cart dengan format <code>{productId, name, price, quantity}</code> → dikonversi ke <code>{id, price, quantity}</code> sebelum dikirim ke API</li>
+                    <li>Sales: cart dengan format <code>{id, name, price, quantity}</code> → langsung dikirim ke API</li>
+                </ul>
+            </div>
+            
+            <div class="functionality">
+                <h4>Validasi yang Lengkap</h4>
+                <p>Fungsi validasi di server menangani berbagai kemungkinan format dan data:</p>
+                <ul>
+                    <li>Validasi ID produk</li>
+                    <li>Validasi harga dan jumlah</li>
+                    <li>Validasi jumlah pembayaran</li>
+                    <li>Penanganan kesalahan transaksi database</li>
+                </ul>
+            </div>
+            
+            <div class="functionality">
+                <h4>Struk Setelah Pembayaran</h4>
+                <p>Struk otomatis ditampilkan di kedua sistem setelah pembayaran berhasil:</p>
+                <ul>
+                    <li>API receipt digunakan untuk menghasilkan struk yang rapi</li>
+                    <li>Struk berisi semua informasi penting transaksi</li>
+                    <li>Desain struk responsif dan siap cetak</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Status Implementasi</h2>
+            <ul>
+                <li class="success">✓ Proses pembayaran berfungsi di POS System</li>
+                <li class="success">✓ Proses pembayaran berfungsi di Sales (Dashboard)</li>
+                <li class="success">✓ Struk muncul setelah pembayaran berhasil</li>
+                <li class="success">✓ Kedua sistem kompatibel dengan format data yang berbeda</li>
+                <li class="success">✓ Stok produk otomatis terupdate setelah pembayaran</li>
+                <li class="success">✓ Validasi data yang ketat untuk mencegah error</li>
+                <li class="success">✓ Tampilan struk profesional dan informatif</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Management</title>
+    <link rel="stylesheet" href="css/common.css">
+    <style>
+        .edit-form {
+            display: none;
+            background: #f9f9f9;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .response {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Product Management</h1>
+        </header>
+        <main>
+            <div class="section-header">
+                <h2>Product Management</h2>
+                <a href="add_product_form.html" class="btn btn-success">+ Add New Product</a>
+            </div>
+
+            <table id="productTable" class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Category</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="productList">
+                    <!-- Products will be loaded here -->
+                </tbody>
+            </table>
+
+            <div id="editFormContainer" class="edit-form">
+                <h3>Edit Product</h3>
+                <form id="editProductForm">
+                    <input type="hidden" id="editProductId">
+                    <div class="form-group">
+                        <label for="editName">Product Name:</label>
+                        <input type="text" id="editName" name="name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editPrice">Price:</label>
+                        <input type="number" id="editPrice" name="price" min="0" step="0.01" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editStock">Stock:</label>
+                        <input type="number" id="editStock" name="stock" min="0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editCategory">Category:</label>
+                        <input type="text" id="editCategory" name="category">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Update Product</button>
+                    <button type="button" id="cancelEdit" class="btn btn-danger">Cancel</button>
+                </form>
+
+                <div id="editResponse" class="response"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let products = [];
+
+        // Load products when the page loads
+        window.onload = function() {
+            loadProducts();
+        };
+
+        // Function to load all products
+        async function loadProducts() {
+            try {
+                const response = await fetch('api/product_api.php?action=getProducts');
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    products = result.data;
+                    displayProducts(products);
+                } else {
+                    document.getElementById('productList').innerHTML = '<tr><td colspan="6">Failed to load products</td></tr>';
+                }
+            } catch (error) {
+                document.getElementById('productList').innerHTML = '<tr><td colspan="6">Error loading products: ' + error.message + '</td></tr>';
+            }
+        }
+
+        // Function to display products in the table
+        function displayProducts(products) {
+            const tbody = document.getElementById('productList');
+            tbody.innerHTML = '';
+            
+            products.forEach(product => {
+                const row = `
+                    <tr>
+                        <td>${product.id}</td>
+                        <td>${product.name}</td>
+                        <td>Rp ${parseFloat(product.price).toFixed(2)}</td>
+                        <td>${product.stock}</td>
+                        <td>${product.category || 'N/A'}</td>
+                        <td>
+                            <button onclick="editProduct(${product.id})" class="btn btn-edit">Edit</button>
+                            <button onclick="deleteProduct(${product.id}, '${product.name}')" class="btn btn-delete">Delete</button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        // Function to prepare editing a product
+        function editProduct(id) {
+            const product = products.find(p => p.id == id);
+            if (product) {
+                document.getElementById('editProductId').value = product.id;
+                document.getElementById('editName').value = product.name;
+                document.getElementById('editPrice').value = parseFloat(product.price);
+                document.getElementById('editStock').value = product.stock;
+                document.getElementById('editCategory').value = product.category || '';
+                
+                document.getElementById('editFormContainer').style.display = 'block';
+                document.getElementById('editResponse').style.display = 'none';
+                
+                // Scroll to the edit form
+                document.getElementById('editFormContainer').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Function to handle product update
+        document.getElementById('editProductForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                action: 'updateProduct',
+                id: document.getElementById('editProductId').value,
+                name: document.getElementById('editName').value,
+                price: parseFloat(document.getElementById('editPrice').value),
+                stock: parseInt(document.getElementById('editStock').value),
+                category: document.getElementById('editCategory').value
+            };
+            
+            try {
+                const response = await fetch('api/product_api.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                const responseDiv = document.getElementById('editResponse');
+                if (result.status === 'success') {
+                    responseDiv.className = 'response success';
+                    responseDiv.style.display = 'block';
+                    responseDiv.textContent = result.message;
+                    
+                    // Reload products after successful update
+                    setTimeout(() => {
+                        loadProducts();
+                        document.getElementById('editFormContainer').style.display = 'none';
+                    }, 1000);
+                } else {
+                    responseDiv.className = 'response error';
+                    responseDiv.style.display = 'block';
+                    responseDiv.textContent = result.message || 'An error occurred';
+                }
+            } catch (error) {
+                const responseDiv = document.getElementById('editResponse');
+                responseDiv.className = 'response error';
+                responseDiv.style.display = 'block';
+                responseDiv.textContent = 'An error occurred while connecting to the server: ' + error.message;
+            }
+        });
+
+        // Function to cancel editing
+        document.getElementById('cancelEdit').addEventListener('click', function() {
+            document.getElementById('editFormContainer').style.display = 'none';
+        });
+
+        // Function to delete a product
+        async function deleteProduct(id, name) {
+            if (confirm(`Are you sure you want to delete product "${name}"?`)) {
+                try {
+                    const response = await fetch('api/product_api.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            action: 'deleteProduct',
+                            id: id
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.status === 'success') {
+                        alert(result.message);
+                        loadProducts(); // Reload the product list
+                    } else {
+                        alert(result.message || 'An error occurred while deleting the product');
+                    }
+                } catch (error) {
+                    alert('An error occurred while connecting to the server: ' + error.message);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
